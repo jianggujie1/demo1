@@ -52,8 +52,17 @@ def ema_attention_block(input_tensor, l2_reg=1e-4):
     branch1 = Conv2D(C // 2, (1, 1), padding="same", kernel_regularizer=l2(l2_reg))(
         input_tensor
     )
-    time_pool = GlobalAveragePooling2D(axis=1)(branch1)[:, tf.newaxis, :]  # 补频率维度
-    freq_pool = GlobalAveragePooling2D(axis=2)(branch1)[tf.newaxis, :, :]  # 补时间维度
+    # time_pool = GlobalAveragePooling2D(axis=1)(branch1)[:, tf.newaxis, :]  # 补频率维度
+    # freq_pool = GlobalAveragePooling2D(axis=2)(branch1)[tf.newaxis, :, :]  # 补时间维度
+    # 替换GlobalAveragePooling2D(axis=1)：对时间维度（axis=1）池化
+    time_pool = tf.reduce_mean(
+        branch1, axis=1, keepdims=True
+    )  # 输出：(None, 1, F, C//2)
+    # 替换GlobalAveragePooling2D(axis=2)：对频率维度（axis=2）池化
+    freq_pool = tf.reduce_mean(
+        branch1, axis=2, keepdims=True
+    )  # 输出：(None, T, 1, C//2)
+
     branch1 = Add()([time_pool, freq_pool])
     branch1 = Conv2D(C, (1, 1), padding="same", kernel_regularizer=l2(l2_reg))(branch1)
 
@@ -69,6 +78,8 @@ def ema_attention_block(input_tensor, l2_reg=1e-4):
 
 
 def residual_shrinkage_unit(input_tensor, nf=32):
+    # 获取输入张量的通道数（关键：用输入通道数作为输出通道数）
+    input_channels = input_tensor.shape[-1]
     """残差收缩单元（RF+软阈值+EMA）"""
     x = rf_self_calibration_block(input_tensor, nf)
     # 软阈值化（简化实现）
@@ -79,6 +90,10 @@ def residual_shrinkage_unit(input_tensor, nf=32):
         )
     )(x)
     x = ema_attention_block(x)
+    # 确保x的通道数与input_tensor一致（关键修复）
+    if x.shape[-1] != input_channels:
+        x = Conv2D(input_channels, (1, 1), padding="same")(x)
+
     return Add()([x, input_tensor])
 
 

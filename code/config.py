@@ -37,5 +37,5 @@ R = 0.35  # 分频比（论文最优值）
 BATCH_SIZE = 32  # 批次大小（3080Ti可跑32）
 EPOCHS = 500  # 训练轮数（论文指定）
 INIT_LR = 0.0001  # 初始学习率
-NUM_CLASSES = 10  # 类别数（UrbanSound8K/ESC-10均为10类）
+NUM_CLASSES = 50  # 类别数（UrbanSound8K/ESC-10均为10类）
 VAL_SPLIT = 0.2  # 验证集比例

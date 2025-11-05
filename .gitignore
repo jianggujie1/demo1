@@ -1,4 +1,4 @@
 # Ignore Python virtual environments
 venv/
 data/
-_pycache__/
+code/_pycache__/
