@@ -52,8 +52,8 @@ def ema_attention_block(input_tensor, l2_reg=1e-4):
     branch1 = Conv2D(C // 2, (1, 1), padding="same", kernel_regularizer=l2(l2_reg))(
         input_tensor
     )
-    time_pool = GlobalAveragePooling2D(axis=1)(branch1)[:, np.newaxis, :]  # 补频率维度
-    freq_pool = GlobalAveragePooling2D(axis=2)(branch1)[np.newaxis, :, :]  # 补时间维度
+    time_pool = GlobalAveragePooling2D(axis=1)(branch1)[:, tf.newaxis, :]  # 补频率维度
+    freq_pool = GlobalAveragePooling2D(axis=2)(branch1)[tf.newaxis, :, :]  # 补时间维度
     branch1 = Add()([time_pool, freq_pool])
     branch1 = Conv2D(C, (1, 1), padding="same", kernel_regularizer=l2(l2_reg))(branch1)
 
