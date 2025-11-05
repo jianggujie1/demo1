@@ -1,0 +1,9 @@
+tensorflow==2.10.0
+keras==2.10.0
+librosa==0.10.1
+numpy==1.23.5
+scipy==1.10.1
+matplotlib==3.7.2
+pandas==1.5.3
+soundfile==0.12.1
+scikit-learn==1.2.2
